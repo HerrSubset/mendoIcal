@@ -118,7 +118,15 @@ def getTeamList():
 teams = getTeamList()
 for k in teams:
     print "%s" % (k)
-team = raw_input("Geef je team op: ")
-schedule = getTeamSchedule(teams[team])
+
+go = True
+while go:
+    go = False
+    team = raw_input("Geef je team op: ")
+    try:
+        schedule = getTeamSchedule(teams[team])
+    except KeyError as err:
+        print "That team doesn't exist, try again"
+        go = True
 printTeamGames(schedule)
 createIcal(schedule, "./"+ str(team) +".ics")
