@@ -1,9 +1,34 @@
+#Mendo Ical
+#a short python script to download the game calendar for a certain team of the
+#volleyball club "Mendo Booischot" and convert it to an .ics file
+#
+#Created by HerrSubset
+
+
+
+
+###############################################################################
+###############################################################################
+## helper functions
+###############################################################################
+###############################################################################
+
 from bs4 import BeautifulSoup
 import urllib2
 import icalendar as IC
 import datetime as DT
 import os
 
+
+
+
+###############################################################################
+###############################################################################
+## helper functions
+###############################################################################
+###############################################################################
+
+#take
 def printTeamGames(schedule):
     print "Schedule:"
     for game in schedule:
@@ -13,6 +38,7 @@ def printTeamGames(schedule):
         awayTeam = game["awayTeam"]
         location = game["location"]
         print "%s %s: %s - %s\t(%s)" % (date,hour,homeTeam,awayTeam,location)
+
 
 def getGameDict(gameRow):
     res = {}
@@ -30,6 +56,7 @@ def getGameDict(gameRow):
     res["awayTeam"] = awayTeam
 
     return res
+
 
 def getTeamSchedule(teamURL):
     res = []
@@ -51,6 +78,7 @@ def getTeamSchedule(teamURL):
         res.append(getGameDict(sibling))
 
     return res
+
 
 def createIcal(schedule, savePath):
     cal = IC.Calendar()
@@ -84,6 +112,7 @@ def createIcal(schedule, savePath):
     f.write(cal.to_ical())
     f.close()
 
+
 def getKeyValue(team):
     teamName = None
     url = None
@@ -95,12 +124,16 @@ def getKeyValue(team):
 
     return teamName, url
 
+
+#returns a hash containing all the teams and the link to their team page
 def getTeamList():
+    #download the html with all the teams
     res = {}
     url = "http://www.mendo.be/v2/4/"
     response = urllib2.urlopen(url)
     html = response.read()
 
+    #convert html to hash
     soup = BeautifulSoup(html)
     teamsDiv = soup.find("div", id="defaultBox")
     firstTeam = teamsDiv.find("a")
@@ -115,10 +148,19 @@ def getTeamList():
     return res
 
 
+
+
+###############################################################################
+###############################################################################
+## Main program loop
+###############################################################################
+###############################################################################
+
 teams = getTeamList()
 for k in teams:
     print "%s" % (k)
 
+#get user input to select a team
 go = True
 while go:
     go = False
@@ -128,5 +170,7 @@ while go:
     except KeyError as err:
         print "That team doesn't exist, try again"
         go = True
+
+
 printTeamGames(schedule)
 createIcal(schedule, "./"+ str(team) +".ics")
